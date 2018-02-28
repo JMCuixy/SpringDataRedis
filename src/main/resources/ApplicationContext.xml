@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/spring-context.xsd
+       http://www.springframework.org/schema/cache
+       http://www.springframework.org/schema/spring-cache.xsd">
+
+    <context:component-scan base-package="com.spring.redis"/>
+    <context:property-placeholder location="classpath:redis.properties"/>
+
+    <cache:annotation-driven/>
+
+    <!--连接工厂-->
+    <bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <property name="hostName" value="${redis.hostName}"/>
+        <property name="port" value="${redis.port}"/>
+        <property name="password" value="${redis.password}"/>
+    </bean>
+
+    <!--redisTemplate-->
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+       <property name="connectionFactory" ref="redisConnectionFactory"/>
+    </bean>
+
+    <!--stringRedisTemplate-->
+    <bean id="stringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+        <property name="connectionFactory" ref="redisConnectionFactory"/>
+    </bean>
+
+    <!--cacheManager-->
+    <bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager">
+        <constructor-arg ref="redisTemplate"/>
+    </bean>
+
+</beans>
