@@ -16,16 +16,28 @@
 
     <cache:annotation-driven/>
 
+    <!-- 使用Spring配置JedisPoolConfig对象 -->
+    <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <!-- 最大空闲数 -->
+        <property name="maxIdle" value="300"/>
+        <!-- 最大连接数 -->
+        <property name="maxTotal" value="100"/>
+        <!-- 最大等待时间 -->
+        <property name="maxWaitMillis" value="20000"/>
+    </bean>
+
     <!--连接工厂-->
     <bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
-        <property name="hostName" value="${redis.hostName}"/>
-        <property name="port" value="${redis.port}"/>
-        <property name="password" value="${redis.password}"/>
+        <property name="hostName" value="${hostName}"/>
+        <property name="port" value="${port}"/>
+        <property name="password" value="${password}"/>
+        <!-- poolConfig:连接池配置对象 -->
+        <property name="poolConfig" ref="poolConfig" />
     </bean>
 
     <!--redisTemplate-->
     <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
-       <property name="connectionFactory" ref="redisConnectionFactory"/>
+        <property name="connectionFactory" ref="redisConnectionFactory"/>
     </bean>
 
     <!--stringRedisTemplate-->
