@@ -13,6 +13,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
@@ -72,5 +75,30 @@ public class Config {
         return new RedisCacheManager(redisTemplate);
     }
 
+    /**
+     * redis消息监听器容器
+     * <p>
+     * 可以添加多个监听不同 topic 的 redis监听器，只需要把消息监听器和相应的消息订阅处理器绑定
+     *
+     * @param connectionFactory
+     * @return
+     */
+    @Bean
+    public RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        //订阅了一个叫 channel 的通道
+        container.addMessageListener(channelAdapter(), new PatternTopic("channel"));
+        //这个container 可以添加多个 messageListener
+        return container;
+    }
+
+    /**
+     * 消息监听器适配器，绑定消息处理器
+     */
+    @Bean
+    public MessageListenerAdapter channelAdapter() {
+        return new MessageListenerAdapter(new ChannelListener());
+    }
 
 }
